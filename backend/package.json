@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prajwalkulkarni/fullstack.git"
+  },
+  "author": "Prajwal Kulkarni",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/prajwalkulkarni/fullstack/issues"
+  },
+  "homepage": "https://github.com/prajwalkulkarni/fullstack#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
