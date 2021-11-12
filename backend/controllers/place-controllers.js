@@ -1,6 +1,8 @@
 const HttpError = require('../models/http-error')
 
-const DUMMY_PLACES = [
+
+const {validationResult} = require('express-validator')
+let DUMMY_PLACES = [
     {
         id:'p1',
         title:'Empire state builing',
@@ -32,7 +34,7 @@ const getByUserId = (req,res,next)=>{
     const userId = req.params.uid
     const returnVal = DUMMY_PLACES.filter(place=>place.creator===userId)
 
-    if(!returnVal){
+    if(returnVal.length===0){
         // return res.status(404).json({message:'Could not find a place for the provided user id.'})
         return next(new HttpError('Could not find a place for the provided user id',404));
     }
@@ -41,6 +43,12 @@ const getByUserId = (req,res,next)=>{
 }
 
 const createPlace = (req,res,next)=>{
+
+    const error = validationResult(req)
+
+    if(!error.isEmpty()){
+        throw new HttpError('Invalid inputs given',422)
+    }
 
     const {title,description,coordinates,address,creator} = req.body
 
@@ -51,14 +59,56 @@ const createPlace = (req,res,next)=>{
         address,
         creator
     }
-    console.log(createdPlace)
+    // console.log(createdPlace)
     DUMMY_PLACES.push(createdPlace)
-
+    // console.log(DUMMY_PLACES)
     res.status(201).json({message:"Successfully added"})
+
+}
+
+const updatePlace = (req,res,next) =>{
+
+    const placeId = req.params.pid
+
+    const placeToBeUpdatedIndex = DUMMY_PLACES.findIndex(place=>place.id===placeId)
+    if(placeToBeUpdatedIndex!==-1){
+        let mutatePlaceProps = DUMMY_PLACES[placeToBeUpdatedIndex]
+        const propsToBeUpdated = req.body
+
+        for(key of Object.keys(propsToBeUpdated)){
+            mutatePlaceProps[key] = propsToBeUpdated[key]
+        }
+
+        DUMMY_PLACES[placeToBeUpdatedIndex] = mutatePlaceProps
+
+        res.status(201).json({response:DUMMY_PLACES[placeToBeUpdatedIndex]})
+    }
+
+
+}
+
+const deletePlace = (req,res,next) => {
+
+    const placeId = req.params.pid
+
+    const deletePlaceIndex = DUMMY_PLACES.find(place=>place.id===placeId)
+
+    if(deletePlaceIndex){
+
+        DUMMY_PLACES = DUMMY_PLACES.filter(place=>place.id!==placeId)
+
+        res.status(201).json({response:"Deletion successful"})
+
+
+    }
+
+    throw new HttpError('No place found for the given ID',404);
 
 }
 module.exports = {
     getByPlaceId,
     getByUserId,
-    createPlace
+    createPlace,
+    updatePlace,
+    deletePlace
 }
