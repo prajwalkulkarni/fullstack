@@ -3,11 +3,20 @@ const app = express()
 
 const bodyParser = require('body-parser')
 
-app.use(bodyParser({extended:false}))
+const placesRouter = require('./routes/places-routes')
 
-app.get()
 
-app.listen(1377)
+app.use('/api/places',placesRouter)
+
+app.use((error,req,res,next)=>{
+    if(res.headerSent){
+        return next(error)
+    }
+
+    res.status(error.code ?? 500).json(({message:error.message || 'An unknown error occured' }))
+})
+
+app.listen(1337)
 
 
 
