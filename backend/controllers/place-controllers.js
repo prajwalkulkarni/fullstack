@@ -2,6 +2,7 @@ const HttpError = require('../models/http-error')
 
 
 const {validationResult} = require('express-validator')
+const getCoordinates = require('../util/location')
 let DUMMY_PLACES = [
     {
         id:'p1',
@@ -42,16 +43,23 @@ const getByUserId = (req,res,next)=>{
     res.json({returnVal})
 }
 
-const createPlace = (req,res,next)=>{
+const createPlace = async(req,res,next)=>{
 
     const error = validationResult(req)
 
     if(!error.isEmpty()){
-        throw new HttpError('Invalid inputs given',422)
+       return next(new HttpError('Invalid inputs given',422))
     }
 
-    const {title,description,coordinates,address,creator} = req.body
+    const {title,description,address,creator} = req.body
 
+    let coordinates;
+
+    try{
+        coordinates = await getCoordinates(address)
+    }catch(error){
+        return next(error)
+    }
     const createdPlace = {
         title,
         description,
@@ -67,6 +75,12 @@ const createPlace = (req,res,next)=>{
 }
 
 const updatePlace = (req,res,next) =>{
+
+    const error = validationResult(req)
+
+    if(!error.isEmpty()){
+        throw new HttpError('Invalid inputs given',422)
+    }
 
     const placeId = req.params.pid
 

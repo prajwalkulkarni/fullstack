@@ -1,5 +1,7 @@
 const HttpError = require('../models/http-error')
 const uuid = require('uuid')
+
+const {validationResult} = require('express-validator')
 let DUMMY_USERS = [
     {
         id:'u1',
@@ -24,6 +26,11 @@ const getAllUsers = (req,res,next)=>{
 
 const userSignup = (req,res,next)=>{
     // console.log(req.params)
+
+    const error = validationResult(req)
+    if(!error.isEmpty()){
+        throw new HttpError('Invlaid format of email/password')
+    }
     const signUpData = req.body
 
     const hasUser = DUMMY_USERS.find(user=>user.email===signUpData.email)
@@ -39,6 +46,10 @@ const userSignup = (req,res,next)=>{
 }
 
 const userLogin = (req,res,next)=>{
+    const error = validationResult(req)
+    if(!error.isEmpty()){
+        throw new HttpError('Invlaid format of email/password')
+    }
 
     const {email,password} = req.body
 
@@ -58,5 +69,5 @@ const userLogin = (req,res,next)=>{
 module.exports = {
     getAllUsers,
     userSignup,
-    userLogin,
+    userLogin
 }
