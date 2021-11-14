@@ -1,67 +1,25 @@
 import styles from './NewPLace.module.css'
 import Input from '../../shared/FormElements/Input'
-import { useCallback,useReducer } from 'react'
+import { useForm } from '../../shared/hooks/form-hook'
 import { VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../shared/utils/validators'
 import Button from '../../shared/FormElements/Button'
-const formReducer = (state,action)=>{
 
-    switch(action.type){
-
-        case "INPUT_CHANGE":
-            let formIsValid = true
-            
-            for(const inputId in state.inputs){
-
-                if(inputId===action.inputId){
-                    formIsValid = formIsValid && action.isValid
-                }
-                else{
-                    formIsValid = formIsValid && state.inputs[inputId].isValid
-                }
-            }
-
-            console.log({
-                ...state,
-                inputs:{...state.inputs,
-                [action.inputId]:{value:action.value,isValid:action.isValid}
-                },
-                isValid:formIsValid
-            })
-
-            return {
-                ...state,
-                inputs:{...state.inputs,
-                [action.inputId]:{value:action.value,isValid:action.isValid}
-                },
-                isValid:formIsValid
-            }
-        default:
-            return state
-    }
-}
 export default function NewPlaces(props){
 
-
-    const [formState,dispatchFn]=useReducer(formReducer,{
-        inputs:{
-            title:{
-                value:'',
-                isValid:false
-            },
-            description:{
-                value:'',
-                isValid:false
-            },
-            
+    const {formState,inputHandler} = useForm({
+        title:{
+            value:'',
+            isValid:false
         },
-        isValid:false
-    })
-
-    const inputHandler = useCallback((id,inputValue,isValid) =>{
-        
-        dispatchFn({type:"INPUT_CHANGE",value:inputValue,inputId:id,isValid})
-    },[])
-
+        description:{
+            value:'',
+            isValid:false
+        },
+        address:{
+            value:'',
+            isValid:false
+        }
+    },false)
     
     const placeSubmitHandler = event =>{
         event.preventDefault()
