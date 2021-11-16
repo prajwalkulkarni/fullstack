@@ -19,7 +19,11 @@ router.post('/',[
     check('address').not().isEmpty()
 ],placeController.createPlace)
 
-router.patch('/:pid',placeController.updatePlace)
+router.patch('/:pid',[
+    check('title').not().isEmpty(),
+    check('description').isLength({min:10}),
+    check('address').not().isEmpty()
+],placeController.updatePlace)
 
 router.delete('/:pid',placeController.deletePlace)
 
