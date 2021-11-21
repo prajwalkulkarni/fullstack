@@ -1,4 +1,4 @@
-import {useRouter} from 'next/router'
+import store from '../../store/auth-store'
 import PlaceList from '../../places/components/PlaceList'
 import styles from '../../shared/Navigation/MainHeader.module.css'
 
@@ -11,7 +11,7 @@ const DUMMY_PLACES=[
         address:'20 W 34th St, New York, NY 10001, United States',
         location:{
             lat:40.7484405,
-            lnt:-73.9878531
+            lng:-73.9878531
         },
         creator:'u1'
     },
@@ -23,27 +23,74 @@ const DUMMY_PLACES=[
         address:'20 W 34th St, New York, NY 10001, United States',
         location:{
             lat:40.7484405,
-            lnt:-73.9878531
+            lng:-73.9878531
         },
         creator:'u2'
     }
 ]
 
-export default function Places(){
 
 
-    const router = useRouter()
+export default function Places(props){
 
-    console.log(router.query.userId)
+    // console.log(router.query.userId)
 
-    const filteredPlaces = DUMMY_PLACES.filter(place=>place.creator===router.query.userId)
+    
 
     
 
     return(
         <main className={styles['main']}>
-            <PlaceList items={filteredPlaces}/>
+            <PlaceList items={props.filteredPlaces}/>
         </main>
         
     )
+}
+
+
+export function getStaticPaths(){
+
+    return {
+        paths:[
+            {
+            params:{
+                userId:'u1'
+            }
+        },
+        {
+            params:{
+                userId:'u2'
+            }
+        }
+        ],
+        fallback:false
+    }
+}
+
+
+export function getStaticProps(context){
+
+    // const router = useRouter()
+
+    const selector = store.getState()
+
+    if(!selector.isLoggedIn){
+        return {
+            redirect:{
+                permanent:false,
+                destination:'/auth'
+            }
+        }
+    }
+
+    const filteredPlaces = DUMMY_PLACES.filter(place=>place.creator===context.params.userId)
+    //console.log("called")
+
+    return {
+        props:{
+            filteredPlaces
+        }
+    }
+
+
 }
