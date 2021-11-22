@@ -23,7 +23,6 @@ const getByPlaceId = async(req,res,next)=>{
     
     if(!place){
         throw new HttpError('Could not find a place for the provided id',404)
-        // return res.status(404).json({message:'Could not find a place for the provided id.'})
     }
     res.json({place:place.toObject({getters:true})})
 }
@@ -43,10 +42,7 @@ const getByUserId = async(req,res,next)=>{
 
         return next(error)
     }
-    // if(returnVal.length===0){
-    //     // return res.status(404).json({message:'Could not find a place for the provided user id.'})
-    //     return next(new HttpError('Could not find a place for the provided user id',404));
-    // }
+    
     
     res.json({placesById:placesById.map(place=>place.toObject({getters:true}))})
 }
@@ -85,9 +81,7 @@ const createPlace = async(req,res,next)=>{
         return next(error)
     }
     
-    // console.log(createdPlace)
-    // DUMMY_PLACES.push(createdPlace)
-    // console.log(DUMMY_PLACES)
+    
     res.status(201).json({message:"Successfully added"})
 
 }
@@ -99,7 +93,7 @@ const updatePlace = async(req,res,next) =>{
     const {title,description} =req.body
 
     if(!error.isEmpty()){
-        throw new HttpError('Invalid inputs given',422)
+        return next(new HttpError('Invalid inputs given',422))
     }
 
     const placeId = req.params.pid
