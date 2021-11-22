@@ -2,61 +2,76 @@ const HttpError = require('../models/http-error')
 const uuid = require('uuid')
 
 const {validationResult} = require('express-validator')
-let DUMMY_USERS = [
-    {
-        id:'u1',
-        name:'Prajwal Kulkarni',
-        email:'prajwalkulkarni@protonmail.com',
-        password:'$tr0ngP@$$w0rd'
-        
+const User = require('../models/user')
+
+
+const getAllUsers = async(req,res,next)=>{
+    
+    let allUsers
+    try{
+        allUsers = await User.find({},'-password')
     }
-]
+    catch(err){
+        const error = new HttpError('Fetching users failed, please try again',500)
 
-const getAllUsers = (req,res,next)=>{
-    // console.log(req.params)
-    // const placeId = req.params.placeId
-    // const returnVal = DUMMY_PLACES.find(place=>place.id===placeId)
-
-    // if(!returnVal){
-    //     throw new HttpError('Could not find a place for the provided id',404)
-    //     // return res.status(404).json({message:'Could not find a place for the provided id.'})
-    // }
-    res.json({users:DUMMY_USERS})
+        return next(error)
+    }
+    res.json({users:allUsers.map(user=>user.toObject({getters:true}))})
 }
 
-const userSignup = (req,res,next)=>{
-    // console.log(req.params)
-
+const userSignup = async(req,res,next)=>{
     const error = validationResult(req)
     if(!error.isEmpty()){
-        throw new HttpError('Invlaid format of email/password')
+        return next(new HttpError('One or more fields empty or invalid.'))
     }
     const signUpData = req.body
+    let existingUser
+    try{
+        existingUser = await User.findOne({email:signUpData.email})
+    } catch(err){
+        const error = new HttpError('Signing up failed',500)
 
-    const hasUser = DUMMY_USERS.find(user=>user.email===signUpData.email)
-
-    if(hasUser){
-        throw new HttpError('Email already exists',422)
+        return next(error)
     }
-    const userData = {...signUpData,id:uuid()}
+
+    if(existingUser){
+        return next(new HttpError('User exists already, please login instead'))
+    }
+
+    let createUser
+    try{
+        createUser = new User({...signUpData,image:'https://live.staticflickr.com/7631/26849088292_36fc52ee90_b.jpg',places:[]})
+        await createUser.save()
     
-    DUMMY_USERS.push(userData)
-    // next({email:signUpData.email,password:signUpData.password})
-    res.status(201).json({message:"User registered successfully"})
+    }
+    catch(err){
+        const error = new HttpError('Creating user failed, please try again')
+
+        return next(error)
+    }
+
+    res.status(201).json({createUser:createUser.toObject({getters:true})})
 }
 
-const userLogin = (req,res,next)=>{
+const userLogin = async(req,res,next)=>{
     const error = validationResult(req)
     if(!error.isEmpty()){
-        throw new HttpError('Invlaid format of email/password')
+        throw new HttpError('Invalid format of email/password')
     }
 
     const {email,password} = req.body
 
-    const findUserByEmail = DUMMY_USERS.find(user=>user.email===email)
+    try{
+        existingUser = await User.findOne({email:email})
+    } catch(err){
+        const error = new HttpError('Logging in failed',500)
 
-    if(!findUserByEmail || findUserByEmail.password !== password){
-        throw new HttpError('Invalid credentials',401)
+        return next(error)
+    }
+
+    
+    if(!existingUser || existingUser.password !== password){
+        return next(new HttpError('Invalid credentials',401))
 
     }
 
