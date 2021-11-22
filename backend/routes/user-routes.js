@@ -1,7 +1,5 @@
 const express = require('express')
 
-const app = express()
-
 const {check} = require('express-validator')
 
 const router = express.Router();
@@ -14,6 +12,7 @@ router.get('/',userController.getAllUsers)
 // router.get('/user/:uid',userController.getByUserId)
 
 router.post('/signup',[
+    check('name').isLength({min:3}),
     check('email').isEmail(),
     check('password').isLength(5)
 ],userController.userSignup)
