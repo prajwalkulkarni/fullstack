@@ -3,6 +3,7 @@ const HttpError = require('../models/http-error')
 
 const {validationResult} = require('express-validator')
 const getCoordinates = require('../util/location')
+const Place = require('../models/place')
 let DUMMY_PLACES = [
     {
         id:'p1',
@@ -60,15 +61,25 @@ const createPlace = async(req,res,next)=>{
     }catch(error){
         return next(error)
     }
-    const createdPlace = {
+    const createdPlace = new Place({
         title,
         description,
         location:coordinates,
         address,
-        creator
+        creator,
+        image:'https://lh5.googleusercontent.com/p/AF1QipPNYKu1SitKYE1uO_NrbfLa7LJMf1m5eD4p1D0y=w408-h272-k-no'
+    })
+    try{
+        await createdPlace.save()
     }
+    catch(err){
+        const error = new HttpError('Creating place failed, please try again')
+
+        return next(error)
+    }
+    
     // console.log(createdPlace)
-    DUMMY_PLACES.push(createdPlace)
+    // DUMMY_PLACES.push(createdPlace)
     // console.log(DUMMY_PLACES)
     res.status(201).json({message:"Successfully added"})
 
