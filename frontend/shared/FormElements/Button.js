@@ -16,12 +16,15 @@ const Button = props => {
   }
   if (props.to) {
     return (
-      <button className={[styles[`button`],styles[` button--${props.size || 'default'}`], styles[`${props.inverse &&
+      <Link href={props.to}>
+        <button className={[styles[`button`],styles[` button--${props.size || 'default'}`], styles[`${props.inverse &&
         'button--inverse'}`] ,styles[`${props.danger && 'button--danger'}`]].join(' ')}>
       
         {props.children}
     
       </button>
+      </Link>
+      
     );
   }
   return (
