@@ -41,6 +41,7 @@ export default function Input(props){
 
     const element = props.element === 'input' ?( <input id={props.id} placeholder={props.placeholder} 
         onChange={changeHandler}
+        type={props.type}
         value={inputState.value}
         onBlur={touchHandler}/>)
     :(<textarea id={props.id} rows={props.wors || 3} 
